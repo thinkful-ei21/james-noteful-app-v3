@@ -1,50 +1,109 @@
 'use strict';
 
 const express = require('express');
-
+const mongoose = require('mongoose');
 const router = express.Router();
+
+const Note = require('../models/note');
 
 /* ========== GET/READ ALL ITEM ========== */
 router.get('/', (req, res, next) => {
+    const { searchTerm } = req.query;
 
-  console.log('Get All Notes');
-  res.json([
-    { id: 1, title: 'Temp 1' },
-    { id: 2, title: 'Temp 2' },
-    { id: 3, title: 'Temp 3' }
-  ]);
+    let filter = {};
+    if (searchTerm) {
+        filter.title = { $regex: searchTerm };
+    }
 
+    Note.find(filter)
+        .sort({ updatedAt: 'desc' })
+        .then(results => {
+            res.json(results);
+        })
+        .catch(err => {
+            next(err);
+        });
 });
 
 /* ========== GET/READ A SINGLE ITEM ========== */
 router.get('/:id', (req, res, next) => {
+    const { id } = req.params;
 
-  console.log('Get a Note');
-  res.json({ id: 1, title: 'Temp 1' });
 
+    Note.findById(id)
+        .then(result => {
+            if (result) {
+                res.json(result);
+            } else {
+                next();
+            }
+        })
+        .catch(err => {
+            next(err);
+        });
 });
 
 /* ========== POST/CREATE AN ITEM ========== */
 router.post('/', (req, res, next) => {
 
-  console.log('Create a Note');
-  res.location('path/to/new/document').status(201).json({ id: 2, title: 'Temp 2' });
+    const { title, content } = req.body;
 
+    if (!title) {
+        const err = new Error('Missing `title` in request body');
+        err.status = 400;
+        return next(err);
+    }
+
+    const newNote = { title, content };
+
+    Note.create(newNote)
+        .then(result => {
+            res.location(`${req.originalUrl}/${result.id}`)
+                .status(201)
+                .json(result);
+        })
+        .catch(err => {
+            next(err);
+        });
 });
 
 /* ========== PUT/UPDATE A SINGLE ITEM ========== */
 router.put('/:id', (req, res, next) => {
+    const { id } = req.params;
+    const { title, content } = req.body;
 
-  console.log('Update a Note');
-  res.json({ id: 1, title: 'Updated Temp 1' });
+    if (!title) {
+        const err = new Error('Missing `title` in request body');
+        err.status = 400;
+        return next(err);
+    }
 
+    const updateNote = { title, content };
+
+    Note.findByIdAndUpdate(id, updateNote, { new: true })
+        .then(result => {
+            if (result) {
+                res.json(result);
+            } else {
+                next();
+            }
+        })
+        .catch(err => {
+            next(err);
+        });
 });
 
 /* ========== DELETE/REMOVE A SINGLE ITEM ========== */
 router.delete('/:id', (req, res, next) => {
+    const { id } = req.params;
 
-  console.log('Delete a Note');
-  res.status(204).end();
+    Note.findByIdAndRemove(id)
+        .then(() => {
+            res.status(204).end();
+        })
+        .catch(err => {
+            next(err);
+        });
 });
 
 module.exports = router;
