@@ -147,7 +147,7 @@ describe('Noteful API resource', function() {
 
             const newNote = { title: 'new note here', content: 'this is a new note' };
 
-            let res;
+            let res; 
 
             return chai.request(app).post('/api/notes')
                 .send(newNote)
