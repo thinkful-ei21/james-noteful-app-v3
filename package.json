@@ -8,7 +8,7 @@
 	},
 	"main": "server.js",
 	"scripts": {
-		"start": "node server.js",
+		"start": "nodemon server.js",
 		"test": "cross-env NODE_ENV=test mocha --file test/server.js"
 	},
 	"dependencies": {

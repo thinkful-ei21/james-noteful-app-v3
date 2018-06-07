@@ -1,2 +1,9 @@
 language: node_js
 node_js: node
+deploy:
+  provider: heroku
+  api_key:
+    secure: kmjUm8Jz8QN9fjIz5eumI2M9Hfpp/KoQY5sPN7cXeNZua8Mplt4oyP4f1WFMj1YoHdy3yplacdXd1LarW6qKeIoC40ukyzNSNuUhnK6iuSlfIYC2LVfqsZtHX6lt1vkFjm1mg+xtwN+ArHZgArdc6hb5rsIxoo1jtC+sr/oV02PqZgYADTi/9h4hRslIQqLbG+rSWbgGOGbNYceN556NnExV5/QFB/rNICF7bYzVPxNuoKSe732J+q+HsMLk9CV8nYFVTJhyE2wMpP52X8mxjKToejwnyJr4e5H+IqT4YOwbHONbYCfwhZOu3BnmXXz8aRCxNlTkKom5vkU+iJorXIHUSdYrMFwhcerKRtDNEG+B3VYE4Q9+v5YLHv5NjHFUxTW/7BpR1cOd8ZmCucjZkWw50M9ijv5UlwSResx+rpWh5zcEKP/waJn0ts5hgk9IJuCb+sPi3EIK1xQO9VADQNqIePzzigxvUXwc8lH4YvROgI4zX8VJIebtOPfy0EW7LEOp7N6Ee+oSbEqAJmHGNGnKc8Msw7G0BOjFdNfOfxNDtfhjcoy51ngHEv20zGUALWDWUR1NiPRrpUKDBJOttxtRDFAX+OFc7TclzQWbwjRNPkeJYQ0ubq0CbZIDtZxmDiOrX9NRlOYVRdX7ymGhGQaiH2vg/Rm8ok5x9FhBRRc=
+  app: james-noteful-app-v3
+  on:
+    repo: thinkful-ei21/james-noteful-app-v3
