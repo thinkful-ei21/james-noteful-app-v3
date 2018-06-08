@@ -259,6 +259,7 @@ describe('Notes endpoints', function() {
                 })
                 .then(res => {
                     expect(res).to.have.status(204);
+                    expect(res.body).to.be.empty;
                     return Note.count({ _id: data.id });
                 })
                 .then(count=> {
