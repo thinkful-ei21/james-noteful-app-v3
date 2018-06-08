@@ -8,21 +8,29 @@ const app = require('../server');
 const { TEST_MONGODB_URI } = require('../config');
 
 const Note = require('../models/note');
+const Folder = require('../models/folder');
 
 const seedNotes = require('../db/seed/notes');
+const seedFolders = require('../db/seed/notes');
 
 const expect = chai.expect;
 
 chai.use(chaiHttp);
 
-describe('Noteful API resource', function() {
+describe('Notes endpoints', function() {
     before(function () {
         return mongoose.connect(TEST_MONGODB_URI)
             .then(() => mongoose.connection.db.dropDatabase());
     });
     
     beforeEach(function () {
-        return Note.insertMany(seedNotes);
+        return Promise.all([
+            Note.insertMany(seedNotes),
+            Folder.insertMany(seedFolders)
+        ])
+            .then(() => {
+                return Note.createIndexes();
+            });
     });
     
     afterEach(function () {
