@@ -5,9 +5,11 @@ const mongoose = require('mongoose');
 const { MONGODB_URI } = require('../config');
 const Note = require('../models/note');
 const Folder = require('../models/folder');
+const Tag = require('../models/tag');
 
 const seedNotes = require('../db/seed/notes');
 const seedFolders = require('../db/seed/folders');
+const seedTags = require('../db/seed/tags');
 
 mongoose.connect(MONGODB_URI)
     .then(() => mongoose.connection.db.dropDatabase())
@@ -15,11 +17,13 @@ mongoose.connect(MONGODB_URI)
         return Promise.all([
             Note.insertMany(seedNotes),
             Folder.insertMany(seedFolders),
+            Tag.insertMany(seedTags),
             Folder.createIndexes(),
+            Tag.createIndexes()
         ]);
     })
     .then(() => {
-        console.info('Creating notes and folders');
+        console.info('Creating notes, folders and tags');
     })
     .then(() => mongoose.disconnect())
     .catch(err => {
