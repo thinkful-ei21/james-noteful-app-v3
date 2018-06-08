@@ -7,11 +7,8 @@ const noteSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    content: String
-    // createdAt: { 
-    //     type: Date,
-    //     default: Date.now()
-    // }
+    content: String,
+    folderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Folder' }
 });
 
 noteSchema.set('timestamps', true);
