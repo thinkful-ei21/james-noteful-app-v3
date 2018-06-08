@@ -11,7 +11,7 @@ const Note = require('../models/note');
 const Folder = require('../models/folder');
 
 const seedNotes = require('../db/seed/notes');
-const seedFolders = require('../db/seed/notes');
+const seedFolders = require('../db/seed/folders');
 
 const expect = chai.expect;
 
@@ -25,6 +25,7 @@ describe('Folders endpoints', function() {
     
     beforeEach(function (){
         return Promise.all([
+            Note.insertMany(seedNotes),
             Folder.insertMany(seedFolders),
             Folder.createIndexes()
         ]);
@@ -36,5 +37,42 @@ describe('Folders endpoints', function() {
     
     after(function () {
         return mongoose.disconnect();
+    });
+    describe('GET api/folders/ endpoint', function(){
+        it('should return all folders sorted by name', function() {
+            return Promise.all([
+                Folder.find().sort('name'),
+                chai.request(app).get('/api/folders')
+            ])
+                .then(([data, res]) => {
+                    expect(res).to.have.status(200);
+                    expect(res).to.be.json;
+                    expect(res.body).to.be.a('array');
+                    expect(res.body).to.have.length(data.length);
+                });
+        });
+
+        it('should return a list of folders with correct fields', function(){
+            return Promise.all([
+                Folder.find().sort('name'),
+                chai.request(app).get('/api/folders')
+            ])
+                .then(([data, res]) => {
+                    expect(res).to.have.status(200);
+                    expect(res).to.be.json;
+                    expect(res.body).to.be.a('array');
+                    expect(res.body).to.have.length(data.length);
+                    res.body.forEach(function(item, i){
+                        expect(item).to.be.a('object');
+                        expect(item).to.include.all.keys(
+                            'id', 'name', 'createdAt', 'updatedAt');
+                        expect(item.id).to.equal(data[i].id);
+                        expect(item.name).to.equal(data[i].name);
+                        expect(new Date(item.createdAt)).to.eql(data[i].createdAt);
+                        expect(new Date(item.updatedAt)).to.eql(data[i].updatedAt);
+                    });
+                });
+        });
+
     });
 });

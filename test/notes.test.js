@@ -11,7 +11,7 @@ const Note = require('../models/note');
 const Folder = require('../models/folder');
 
 const seedNotes = require('../db/seed/notes');
-const seedFolders = require('../db/seed/notes');
+const seedFolders = require('../db/seed/folders');
 
 const expect = chai.expect;
 
