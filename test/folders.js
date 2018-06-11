@@ -144,7 +144,7 @@ describe('Folders endpoints', function() {
                 
         });
 
-        it('should return an error if missing "title" field', function () {
+        it('should return an error if missing "name" field', function () {
             const newFolder = {
                 notName: 'this folder has no title'
             };

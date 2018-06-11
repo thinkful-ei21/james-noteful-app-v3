@@ -44,7 +44,7 @@ describe('Notes endpoints', function() {
     // get all notes or filter by search tests
     describe('GET /api/notes', function(){
         
-        it('should return all notes', function(){
+        it('should return correct number of notes', function(){
 
             let res; 
             return chai.request(app)
@@ -118,6 +118,41 @@ describe('Notes endpoints', function() {
                     });
                 });
         });
+
+        it('should return correct search results for a folderId query', function () {
+            let data;
+            return Folder.findOne()
+                .then((_data) => {
+                    data = _data;
+                    return Promise.all([
+                        Note.find({ folderId: data.id }),
+                        chai.request(app).get(`/api/notes?folderId=${data.id}`)
+                    ]);
+                })
+                .then(([data, res]) => {
+                    expect(res).to.have.status(200);
+                    expect(res).to.be.json;
+                    expect(res.body).to.be.a('array');
+                    expect(res.body).to.have.length(data.length);
+                });
+        });
+
+        it('should return an empty array for an incorrect query', function () {
+            const searchTerm = 'NotValid';
+            // const re = new RegExp(searchTerm, 'i');
+            const dbPromise = Note.find({
+                title: { $regex: searchTerm, $options: 'i' }
+                // $or: [{ 'title': re }, { 'content': re }]
+            });
+            const apiPromise = chai.request(app).get(`/api/notes?searchTerm=${searchTerm}`);
+            return Promise.all([dbPromise, apiPromise])
+                .then(([data, res]) => {
+                    expect(res).to.have.status(200);
+                    expect(res).to.be.json;
+                    expect(res.body).to.be.a('array');
+                    expect(res.body).to.have.length(data.length);
+                });
+        });
     });
 
     // get notes by id tests
@@ -143,9 +178,23 @@ describe('Notes endpoints', function() {
                 });
         });
 
-        // it('should return a 400 status when the id is not valid', function(){
+        it('should respond with status 400 and an error message when `id` is not valid', function () {
+            return chai.request(app)
+                .get('/api/notes/NOT-A-VALID-ID')
+                .then(res => {
+                    expect(res).to.have.status(400);
+                    expect(res.body.message).to.eq('The `id` is not valid');
+                });
+        });
 
-        // });
+        it('should respond with a 404 for an id that does not exist', function () {
+            // The string "DOESNOTEXIST" is 12 bytes which is a valid Mongo ObjectId
+            return chai.request(app)
+                .get('/api/notes/DOESNOTEXIST')
+                .then(res => {
+                    expect(res).to.have.status(404);
+                });
+        });
     });
     
     // create a new note tests
@@ -243,6 +292,34 @@ describe('Notes endpoints', function() {
                     expect(res).to.be.json;
                     expect(res.body).to.be.a('object');
                     expect(res.body.message).to.equal('Missing `title` in request body');
+                });
+        });
+
+        it('should respond with status 400 and an error message when `id` is not valid', function () {
+            const updateItem = {
+                'title': 'What about dogs?!',
+                'content': 'woof woof'
+            };
+            return chai.request(app)
+                .put('/api/notes/NOT-A-VALID-ID')
+                .send(updateItem)
+                .then(res => {
+                    expect(res).to.have.status(400);
+                    expect(res.body.message).to.eq('The `id` is not valid');
+                });
+        });
+
+        it('should respond with a 404 for an id that does not exist', function () {
+            // The string "DOESNOTEXIST" is 12 bytes which is a valid Mongo ObjectId
+            const updateItem = {
+                'title': 'What about dogs?!',
+                'content': 'woof woof'
+            };
+            return chai.request(app)
+                .put('/api/notes/DOESNOTEXIST')
+                .send(updateItem)
+                .then(res => {
+                    expect(res).to.have.status(404);
                 });
         });
     });
